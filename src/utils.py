@@ -33,8 +33,8 @@ def generate_sitemap(app):
     links_html = "".join(["<li><a href='" + y + "'>" + y + "</a></li>" for y in links])
     return """
         <div style="text-align: center;">
-        <img style="max-height: 80px" src='https://ucarecdn.com/3a0e7d8b-25f3-4e2f-add2-016064b04075/rigobaby.jpg' />
-        <h1>Rigo welcomes you to your API!!</h1>
+        <img style="max-height: 80px" src='https://d246df9e-c158-4507-9d4d-4c2a5467b6ba.ws-us02.gitpod.io/files/download/?id=46324082-b8d8-4569-9ca4-5e5ca0f0b518 ' />
+        <h1>Ludotopy API</h1>
         <p>API HOST: <script>document.write('<input style="padding: 5px; width: 300px" type="text" value="'+window.location.href+'" />');</script></p>
         <p>Start working on your proyect by following the <a href="https://github.com/4GeeksAcademy/flask-rest-hello/blob/master/docs/_QUICK_START.md" target="_blank">Quick Start</a></p>
         <p>Remember to specify a real endpoint path like: </p>
