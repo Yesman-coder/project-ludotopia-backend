@@ -19,7 +19,7 @@ class User(db.Model):
 
     #aca va el relationship con bet
 
-    def __init__(self, email, name, last_name, phone, ludos, username, password, salt, status):
+    def __init__(self, email, name, last_name, phone, ludos, username, password, status):
         self.email = email
         self.name = name
         self.last_name = last_name
@@ -37,16 +37,16 @@ class User(db.Model):
         return check_password_hash(self.password_hash, f"{password}{self.salt}")
 
     @classmethod
-    def register(cls, email, name, last_name, phone, ludos, username, password, status):
+    def register(cls, email, name, last_name, phone, username, password):
         new_user = cls(
             email, 
             name.lower(), 
             last_name.lower(), 
             phone, 
-            ludos, 
+            100, 
             username, 
             password, 
-            status
+            True
         )
 
 

@@ -23,7 +23,7 @@ db.init_app(app)
 CORS(app)
 setup_admin(app)
 
-app.config['JWT_SECRET_KEY'] = 'some secret'  # Change this!
+app.config['JWT_SECRET_KEY'] = '3kj65yhfi3ent0shn4o9gf98'  # Change this!
 jwt = JWTManager(app)
 
 
@@ -54,7 +54,7 @@ def post_user():
         "last_name" not in body or
         "phone" not in body or
         "username" not in body or
-        "password" not in body or
+        "password" not in body 
     ):
         return jsonify({
             "response": "Missing properties"
@@ -75,10 +75,9 @@ def post_user():
         body["name"],
         body["last_name"],
         body["phone"],
-        body["ludos"],
         body["username"],
         body["password"],
-        body["status"]
+        
     )
     db.session.add(new_user)
     try:
@@ -113,13 +112,27 @@ def handle_login():
             "result": "missing fields in request body"
         }), 400
 
+
     jwt_identity = ""
 
-    if "email" in request_body: jwt_identity = request_body["email"]
+    user = None
+
+    if "email" in request_body: 
+        jwt_identity = request_body["email"]
+        user = User.query.get(request_body["email"])
     else:
         jwt_identity = request_body["username"]
+        user = User.query.get(request_body["username"])
 
-    ret = {"jwt": create_jwt(identity = jwt_identity)}
+    if isinstance(user, User):
+        if (user.check_password(request_body["password"])):
+            jwt = create_jwt(identity = jwt_identity)
+            ret = user.serialize()
+            ret["jwt"] = jwt
+                    
+            
+
+
     return jsonify(ret), 200
 
     
