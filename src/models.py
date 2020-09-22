@@ -1,5 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
-
+import json
+import os
+from base64 import b64encode
+from werkzeug.security import generate_password_hash, check_password_hash
 db = SQLAlchemy()
 
 class User(db.Model):
@@ -10,21 +13,29 @@ class User(db.Model):
     phone = db.Column(db.String(25))
     ludos = db.Column(db.Integer())
     username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(80), unique=False, nullable=False)
-    status = db.Column(db.Boolean(), unique=False, nullable=False)
+    password_hash = db.Column(db.String(250), nullable=False)
+    salt = db.Column(db.String(16), nullable=False)
+    status = db.Column(db.Boolean(), nullable=False)
 
     #aca va el relationship con bet
 
-    def __init__(self, email, name, last_name, phone, ludos, username, password, status):
+    def __init__(self, email, name, last_name, phone, ludos, username, password, salt, status):
         self.email = email
         self.name = name
         self.last_name = last_name
         self.phone = phone
         self.ludos = ludos
         self.username = username
-        self.password = password
+        self.set_password(password)
+        self.salt = b64encode(os.urandom(4)).decode("utf-8")
         self.status = status
     
+    def set_password (self, password):
+        self.password_hash = generate_password_hash(f"{password}{self.salt}")
+    
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, f"{password}{self.salt}")
+
     @classmethod
     def register(cls, email, name, last_name, phone, ludos, username, password, status):
         new_user = cls(

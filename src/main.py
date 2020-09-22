@@ -40,6 +40,27 @@ def post_user():
         return jsonify({
             "response": "empty body"
         }), 400
+    if (
+        "email" not in body or
+        "name" not in body or
+        "last_name" not in body or
+        "phone" not in body or
+        "username" not in body or
+        "password" not in body or
+    ):
+        return jsonify({
+            "response": "Missing properties"
+        }), 400
+    if(
+        body["email"] == "" or
+        body["name"] == "" or
+        body["last_name"] == "" or
+        body["username"] == "" or
+        body["password"] == ""
+    ):
+        return jsonify({
+            "response": "empty property values"
+        }), 400
 
     new_user = User.register(
         body["email"],
