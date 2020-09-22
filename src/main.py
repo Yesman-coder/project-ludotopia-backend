@@ -47,6 +47,7 @@ def post_user():
         return jsonify({
             "response": "empty body"
         }), 400
+
     if (
         "email" not in body or
         "name" not in body or
