@@ -3,6 +3,9 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os
 from flask import Flask, request, jsonify, url_for
+from flask_jwt_simple import (
+    JWTManager, jwt_required, create_jwt, get_jwt_identity
+)
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
@@ -19,6 +22,10 @@ MIGRATE = Migrate(app, db)
 db.init_app(app)
 CORS(app)
 setup_admin(app)
+
+app.config['JWT_SECRET_KEY'] = 'some secret'  # Change this!
+jwt = JWTManager(app)
+
 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
@@ -82,6 +89,41 @@ def post_user():
         return jsonify({
             "response": f"{error.args}"
         }), 500
+
+
+
+@app.route("/login", methods=["POST"])
+def handle_login():
+    """ Compara El usuario/correo con la base de datos y genera un token si hay match """
+
+    request_body = request.json
+
+    if request_body is None:
+        return jsonify({
+            "result" : "missing request body"
+
+        }), 400
+
+    if (
+        ("email" not in request_body and "username" not in request_body ) or
+        "password" not in request_body
+    ):
+        return jsonify({
+            "result": "missing fields in request body"
+        }), 400
+
+    jwt_identity = ""
+
+    if "email" in request_body: jwt_identity = request_body["email"]
+    else:
+        jwt_identity = request_body["username"]
+
+    ret = {"jwt": create_jwt(identity = jwt_identity)}
+    return jsonify(ret), 200
+
+    
+
+    
 
 
 # this only runs if `$ python src/main.py` is executed
