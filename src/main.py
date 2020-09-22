@@ -54,20 +54,26 @@ def handle_login():
     request_body = request.json
 
     if request_body is None:
-        return jsonify([
+        return jsonify({
             "result" : "missing request body"
 
-        ]), 400
+        }), 400
 
     if (
         ("email" not in request_body and "username" not in request_body ) or
         "password" not in request_body
     ):
-        return jsonify([
+        return jsonify({
             "result": "missing fields in request body"
-        ]), 400
+        }), 400
 
-    ret = {"jwt": create_jwt(identity = f"{request_body["email"]}{request_body["username"]}")}
+    jwt_identity = ""
+
+    if "email" in request_body: jwt_identity = request_body["email"]
+    else:
+        jwt_identity = request_body["username"]
+
+    ret = {"jwt": create_jwt(identity = jwt_identity)}
     return jsonify(ret), 200
 
     
