@@ -30,14 +30,59 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route('/user', methods=['GET'])
-def handle_hello():
+@app.route('/register', methods=['POST'])
+def post_user():
+    """
+        "POST": registrar un usuario y devolverlo
+    """
+    body = request.json
+    if body is None:
+        return jsonify({
+            "response": "empty body"
+        }), 400
+    if (
+        "email" not in body or
+        "name" not in body or
+        "last_name" not in body or
+        "phone" not in body or
+        "username" not in body or
+        "password" not in body or
+    ):
+        return jsonify({
+            "response": "Missing properties"
+        }), 400
+    if(
+        body["email"] == "" or
+        body["name"] == "" or
+        body["last_name"] == "" or
+        body["username"] == "" or
+        body["password"] == ""
+    ):
+        return jsonify({
+            "response": "empty property values"
+        }), 400
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
+    new_user = User.register(
+        body["email"],
+        body["name"],
+        body["last_name"],
+        body["phone"],
+        body["ludos"],
+        body["username"],
+        body["password"],
+        body["status"]
+    )
+    db.session.add(new_user)
+    try:
+        db.session.commit()
+        return jsonify(new_user.serialize()), 201
+    except Exception as error:
+        db.session.rollback()
+        print(f"{error.args} {type(error)}")
+        return jsonify({
+            "response": f"{error.args}"
+        }), 500
 
-    return jsonify(response_body), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
