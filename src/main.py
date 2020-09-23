@@ -119,16 +119,27 @@ def handle_login():
 
     if "email" in request_body: 
         jwt_identity = request_body["email"]
-        user = User.query.get(request_body["email"])
+        user = User.query.filter_by(email=request_body["email"]).first()
     else:
         jwt_identity = request_body["username"]
-        user = User.query.get(request_body["username"])
+        user = User.query.filter_by(username=request_body["username"]).first()
+
+
+    ret = None
 
     if isinstance(user, User):
         if (user.check_password(request_body["password"])):
             jwt = create_jwt(identity = jwt_identity)
             ret = user.serialize()
             ret["jwt"] = jwt
+        else: 
+            ret = {
+                "result": "invalid data"
+            }
+    else:
+        ret = {
+            "result": "not found"
+        }
                     
             
 

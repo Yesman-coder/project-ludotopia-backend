@@ -48,6 +48,7 @@ class User(db.Model):
             password, 
             True
         )
+        return new_user
 
 
     def __repr__(self):
