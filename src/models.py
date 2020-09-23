@@ -26,8 +26,9 @@ class User(db.Model):
         self.phone = phone
         self.ludos = ludos
         self.username = username
-        self.set_password(password)
         self.salt = b64encode(os.urandom(4)).decode("utf-8")
+        self.set_password(password)
+        
         self.status = status
     
     def set_password (self, password):
