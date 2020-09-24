@@ -146,11 +146,19 @@ def handle_login():
         }
                     
             
-
-
     return jsonify(ret), 200
 
-
+@app.route('/user/<user_id>', methods=['GET'])
+@jwt_required
+def get_user(user_id):
+    """ Verificar vigencia del token y poder utilizar su informacion """
+    user = User.query.get(user_id)
+    if isinstance(user, User):
+        return jsonify(user.serialize()), 200
+    else:
+        return jsonify({
+            "result": "user doesnt exist"
+        }), 404
 
 
     
