@@ -58,11 +58,7 @@ class User(db.Model):
 
     def serialize(self):
         return {
-<<<<<<< HEAD
-            
-=======
             'id' : self.id,
->>>>>>> 01d37150d8bbe7c4d28c1b6e70ae9a73c0ef27b4
             'email' : self.email,
             'name' : self.name,
             'last_name' : self.last_name,
