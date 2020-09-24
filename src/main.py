@@ -28,7 +28,6 @@ jwt = JWTManager(app)
 CORS(app)
 setup_admin(app)
 
-app.config['JWT_SECRET_KEY'] = '3kj65yhfi3ent0shn4o9gf98'  # Change this!
 jwt = JWTManager(app)
 
 
