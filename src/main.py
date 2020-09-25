@@ -133,34 +133,35 @@ def handle_login():
 
     if isinstance(user, User):
         if (user.check_password(request_body["password"])):
-            jwt = create_jwt(identity = jwt_identity)
+            jwt = create_jwt(identity = user.id)
             ret = user.serialize()
             ret["jwt"] = jwt
         else: 
-            ret = {
+            return jsonify({
                 "result": "invalid data"
-            }
+            }), 400
     else:
-        ret = {
-            "result": "not found"
-        }
+        return jsonify({
+                "result": "user not found"
+            }), 404
                     
             
     return jsonify(ret), 200
 
-@app.route('/user/<user_id>', methods=['GET'])
+@app.route('/user', methods=['GET'])
 @jwt_required
-def get_user(user_id):
+def get_user():
     """ Verificar vigencia del token y poder utilizar su informacion """
-    user = User.query.get(user_id)
+    user = User.query.get(get_jwt_identity())
+
     if isinstance(user, User):
-        return jsonify(user.serialize()), 200
+        return jsonify({
+            "result": "confirmed"
+        }), 200
     else:
         return jsonify({
             "result": "user doesnt exist"
         }), 404
-
-
     
 
     
