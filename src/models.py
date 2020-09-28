@@ -55,7 +55,6 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-    
 
     def serialize(self):
         return {
@@ -69,3 +68,4 @@ class User(db.Model):
             'status' : self.status
             # do not serialize the password, its a security breach
         }
+
