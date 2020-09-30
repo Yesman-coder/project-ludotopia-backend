@@ -155,9 +155,7 @@ def get_user():
     user = User.query.get(get_jwt_identity())
 
     if isinstance(user, User):
-        return jsonify({
-            "result": "confirmed"
-        }), 200
+        return jsonify(user.serialize())
     else:
         return jsonify({
             "result": "user doesnt exist"
