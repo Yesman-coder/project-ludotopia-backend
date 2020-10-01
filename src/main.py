@@ -221,26 +221,39 @@ def create_bet():
             "response": "empty property values"
         }), 400
 
-    # receiver = User.query.filter_by(username=body["receiver"]).first()
-
-    new_bet = Bet.create_bet(
-        body["ludos"],
-        body["name"],
-        body["description"],
-        body["due_date"],
-        body["sender_id"],
-        body["receiver_id"]
-    )
-    db.session.add(new_bet)
-    try:
-        db.session.commit()
-        return jsonify(new_bet.serialize()), 201
-    except Exception as error:
-        db.session.rollback()
-        print(f"{error.args} {type(error)}")
+    sender =  User.query.get(body["sender_id"])
+    if(body["ludos"] > sender.ludos):
         return jsonify({
-            "response": f"{error.args}"
-        }), 500
+            "response": "not ludos enough"
+        }), 400
+    else:
+        sender.ludos -= body["ludos"]
+
+        receiver = User.query.filter_by(username=body["receiver_id"]).first()
+
+    if isinstance(receiver, User):
+        new_bet = Bet.create_bet(
+            body["ludos"],
+            body["name"],
+            body["description"],
+            body["due_date"],
+            body["sender_id"],
+            receiver.id
+        )
+        db.session.add(new_bet)
+        try:
+            db.session.commit()
+            return jsonify(new_bet.serialize()), 201
+        except Exception as error:
+            db.session.rollback()
+            print(f"{error.args} {type(error)}")
+            return jsonify({
+                "response": f"{error.args}"
+            }), 500
+    else:
+        return jsonify({
+            "response": "user not found"
+        }), 404
 
 
 # this only runs if `$ python src/main.py` is executed

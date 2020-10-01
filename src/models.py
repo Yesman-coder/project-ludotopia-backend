@@ -63,22 +63,24 @@ class User(db.Model):
     def serialize(self):
         sent_list = self.bets_sent
         received_list = self.bets_received
-        sent = []
-        received = []
-        for bet in sent_list:
-            receiver = User.query.filter_by(id=bet.receiver_id).first()
-            info_bet = {}
-            info_bet["id"] = bet.id
-            info_bet["receiver"] = receiver.username
-            info_bet["name"] = bet.name
-            sent.append(info_bet)
-        for bet in received_list:
-            sender = User.query.filter_by(id=bet.sender_id).first()
-            info_bet = {}
-            info_bet["id"] = bet.id
-            info_bet["sender"] = sender.username
-            info_bet["name"] = bet.name
-            received.append(info_bet)
+        bets_sent_serialize = list(map(lambda bet: bet.serialize(), sent_list))
+        bets_received_serialize = list(map(lambda bet: bet.serialize(), received_list))
+        # sent = []
+        # received = []
+        # for bet in sent_list:
+        #     receiver = User.query.filter_by(id=bet.receiver_id).first()
+        #     info_bet = {}
+        #     info_bet["id"] = bet.id
+        #     info_bet["receiver"] = receiver.username
+        #     info_bet["name"] = bet.name
+        #     sent.append(info_bet)
+        # for bet in received_list:
+        #     sender = User.query.filter_by(id=bet.sender_id).first()
+        #     info_bet = {}
+        #     info_bet["id"] = bet.id
+        #     info_bet["sender"] = sender.username
+        #     info_bet["name"] = bet.name
+        #     received.append(info_bet)
         return {
             'id' : self.id,
             'email' : self.email,
@@ -88,8 +90,8 @@ class User(db.Model):
             'ludos' : self.ludos,
             'username' : self.username,
             'status' : self.status,
-            'bets_sent' : sent,
-            'bets_received' : received
+            'bets_sent' : bets_sent_serialize,
+            'bets_received' : bets_received_serialize
         }
 
 class Bet(db.Model):
