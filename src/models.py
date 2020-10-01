@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 import json
 import os
+import datetime
 from base64 import b64encode
 from werkzeug.security import generate_password_hash, check_password_hash
 db = SQLAlchemy()
@@ -12,10 +13,12 @@ class User(db.Model):
     last_name = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(25))
     ludos = db.Column(db.Integer())
-    username = db.Column(db.String(50), unique=True, nullable=False)
+    username = db.Column(db.String(20), unique=True, nullable=False)
     password_hash = db.Column(db.String(250), nullable=False)
     salt = db.Column(db.String(16), nullable=False)
     status = db.Column(db.Boolean(), nullable=False)
+    bets_sent = db.relationship("Bet", backref="sender", foreign_keys="Bet.sender_id")
+    bets_received = db.relationship("Bet", backref="receiver", foreign_keys="Bet.receiver_id")
 
     #aca va el relationship con bet
 
@@ -58,6 +61,24 @@ class User(db.Model):
     
 
     def serialize(self):
+        sent_list = self.bets_sent
+        received_list = self.bets_received
+        sent = []
+        received = []
+        for bet in sent_list:
+            receiver = User.query.filter_by(id=bet.receiver_id).first()
+            info_bet = {}
+            info_bet["id"] = bet.id
+            info_bet["receiver"] = receiver.username
+            info_bet["name"] = bet.name
+            sent.append(info_bet)
+        for bet in received_list:
+            sender = User.query.filter_by(id=bet.sender_id).first()
+            info_bet = {}
+            info_bet["id"] = bet.id
+            info_bet["sender"] = sender.username
+            info_bet["name"] = bet.name
+            received.append(info_bet)
         return {
             'id' : self.id,
             'email' : self.email,
@@ -66,6 +87,63 @@ class User(db.Model):
             'phone' : self.phone,
             'ludos' : self.ludos,
             'username' : self.username,
-            'status' : self.status
-            # do not serialize the password, its a security breach
+            'status' : self.status,
+            'bets_sent' : sent,
+            'bets_received' : received
+        }
+
+class Bet(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ludos = db.Column(db.Integer, nullable=False)
+    name = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(120), nullable=False)
+    due_date = db.Column(db.String(12), nullable=False)
+    create_date = db.Column(db.String(12), nullable=False)
+    winner = db.Column(db.String(20))
+    state = db.Column(db.String(11), nullable=False)
+    status = db.Column(db.Boolean)
+    sender_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    receiver_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+
+    def __init__(self, ludos, name, description, due_date, create_date, winner, state, status, sender_id, receiver_id):
+            self.ludos = ludos
+            self.name = name
+            self.description = description
+            self.due_date = due_date
+            self.create_date = create_date
+            self.winner = winner
+            self.state = state
+            self.status = status
+            self.sender_id = sender_id
+            self.receiver_id = receiver_id
+        
+    @classmethod
+    def create_bet(cls, ludos, name, description, due_date, sender_id, receiver_id):
+        new_bet = cls(
+            ludos, 
+            name.lower(), 
+            description.lower(), 
+            due_date,
+            "create_date",
+            "",
+            "enviado",
+            True,
+            sender_id,
+            receiver_id
+        )
+        return new_bet
+
+    def serialize(self):
+        return {
+            'id' : self.id,
+            'ludos' : self.ludos,
+            'name' : self.name,
+            'description' : self.description,
+            'due_date' : self.due_date,
+            'create_date' : self.create_date,
+            'winner' : self.winner,
+            'state' : self.state,
+            'status' : self.status,
+            'sender_id' : self.sender_id,
+            'receiver_id' : self.receiver_id
         }
