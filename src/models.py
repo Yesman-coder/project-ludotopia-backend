@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 import json
 import os
-import datetime
+from datetime import datetime, timezone
 from base64 import b64encode
 from werkzeug.security import generate_password_hash, check_password_hash
 db = SQLAlchemy()
@@ -99,20 +99,20 @@ class Bet(db.Model):
     ludos = db.Column(db.Integer, nullable=False)
     name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(120), nullable=False)
-    due_date = db.Column(db.String(12), nullable=False)
-    create_date = db.Column(db.String(12), nullable=False)
+    due_date = db.Column(db.DateTime(timezone=True), nullable=False)
+    create_date = db.Column(db.DateTime(timezone=True), nullable=False)
     winner = db.Column(db.String(20))
     state = db.Column(db.String(11), nullable=False)
     status = db.Column(db.Boolean)
     sender_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     receiver_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
-    def __init__(self, ludos, name, description, due_date, create_date, winner, state, status, sender_id, receiver_id):
+    def __init__(self, ludos, name, description, due_date, winner, state, status, sender_id, receiver_id):
             self.ludos = ludos
             self.name = name
             self.description = description
-            self.due_date = due_date
-            self.create_date = create_date
+            self.due_date = datetime.strptime(due_date, '%Y-%m-%d %I:%M%p')
+            self.create_date = datetime.now(timezone.utc)
             self.winner = winner
             self.state = state
             self.status = status
@@ -126,7 +126,6 @@ class Bet(db.Model):
             name.lower(), 
             description.lower(), 
             due_date,
-            "create_date",
             "",
             "enviado",
             True,

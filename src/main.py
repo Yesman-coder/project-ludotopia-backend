@@ -205,7 +205,7 @@ def create_bet():
         "description" not in body or
         "due_date" not in body or
         "sender_id" not in body or
-        "receiver_id" not in body
+        "receiver_name" not in body
     ):
         return jsonify({
             "response": "Missing properties"
@@ -215,7 +215,7 @@ def create_bet():
         body["name"] == "" or
         body["description"] == "" or
         body["sender_id"] == "" or
-        body["receiver_id"] == "" 
+        body["receiver_name"] == "" 
     ):
         return jsonify({
             "response": "empty property values"
@@ -229,7 +229,12 @@ def create_bet():
     else:
         sender.ludos -= body["ludos"]
 
-        receiver = User.query.filter_by(username=body["receiver_id"]).first()
+        receiver = User.query.filter_by(username=body["receiver_name"]).first()
+
+    if body["sender_id"] == receiver.id:
+        return jsonify({
+            "response": "cant create bet with yourself"
+        }), 400
 
     if isinstance(receiver, User):
         new_bet = Bet.create_bet(
