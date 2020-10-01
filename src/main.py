@@ -3,12 +3,15 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os
 from flask import Flask, request, jsonify, url_for
+from flask_jwt_simple import (
+    JWTManager, jwt_required, create_jwt, get_jwt_identity
+)
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Bet
 from flask_jwt_simple import (
     JWTManager, jwt_required, create_jwt, get_jwt_identity
 )
@@ -114,15 +117,15 @@ def handle_login():
         }), 400
 
 
-    
+    jwt_identity = ""
 
     user = None
 
     if "email" in request_body: 
-        
+        jwt_identity = request_body["email"]
         user = User.query.filter_by(email=request_body["email"]).first()
     else:
-      
+        jwt_identity = request_body["username"]
         user = User.query.filter_by(username=request_body["username"]).first()
 
 
@@ -139,28 +142,105 @@ def handle_login():
             }), 400
     else:
         return jsonify({
-            "result": "not found"
-        }), 404
+                "result": "user not found"
+            }), 404
                     
             
     return jsonify(ret), 200
 
 @app.route('/user', methods=['GET'])
 @jwt_required
-def get_user(user_id):
+def get_user():
     """ Verificar vigencia del token y poder utilizar su informacion """
     user = User.query.get(get_jwt_identity())
+
     if isinstance(user, User):
-        return jsonify(user.serialize()), 200
+        return jsonify(user.serialize())
     else:
         return jsonify({
             "result": "user doesnt exist"
         }), 404
-
-
     
 
-    
+@app.route('/users', methods=['GET'])
+def get_users():
+    """ buscar y regresar todos los usuarios """
+    users = User.query.all()
+    users_serialize = list(map(lambda user: user.serialize(), users))
+    return jsonify(users_serialize), 200
+
+@app.route('/bets', methods=['GET'])
+def get_bets():
+    """ buscar y regresar todos las apuestas """
+    bets = Bet.query.all()
+    bets_serialize = list(map(lambda bet: bet.serialize(), bets))
+    return jsonify(bets_serialize), 200
+
+@app.route('/bet/<bet_id>', methods=['GET'])
+def get_bet(bet_id):
+    """ buscar y regresar un apuesta en especifico  """
+    bet = Bet.query.get(bet_id)
+    if isinstance(bet, Bet):
+        return jsonify(bet.serialize()), 200
+    else:
+        return jsonify({
+            "result": "bet not found"
+        }), 404
+
+
+@app.route('/bet', methods=['POST'])
+def create_bet():
+    """
+        "POST": crear una apuesta y devolverla
+    """
+    body = request.json
+    if body is None:
+        return jsonify({
+            "response": "empty body"
+        }), 400
+
+    if (
+        "ludos" not in body or
+        "name" not in body or
+        "description" not in body or
+        "due_date" not in body or
+        "sender_id" not in body or
+        "receiver_id" not in body
+    ):
+        return jsonify({
+            "response": "Missing properties"
+        }), 400
+    if(
+        body["ludos"] == "" or
+        body["name"] == "" or
+        body["description"] == "" or
+        body["sender_id"] == "" or
+        body["receiver_id"] == "" 
+    ):
+        return jsonify({
+            "response": "empty property values"
+        }), 400
+
+    # receiver = User.query.filter_by(username=body["receiver"]).first()
+
+    new_bet = Bet.create_bet(
+        body["ludos"],
+        body["name"],
+        body["description"],
+        body["due_date"],
+        body["sender_id"],
+        body["receiver_id"]
+    )
+    db.session.add(new_bet)
+    try:
+        db.session.commit()
+        return jsonify(new_bet.serialize()), 201
+    except Exception as error:
+        db.session.rollback()
+        print(f"{error.args} {type(error)}")
+        return jsonify({
+            "response": f"{error.args}"
+        }), 500
 
 
 # this only runs if `$ python src/main.py` is executed
