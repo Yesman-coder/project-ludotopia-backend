@@ -135,6 +135,8 @@ class Bet(db.Model):
         return new_bet
 
     def serialize(self):
+        sender = User.query.get(self.sender_id)
+        receiver = User.query.get(self.receiver_id)
         return {
             'id' : self.id,
             'ludos' : self.ludos,
@@ -146,5 +148,7 @@ class Bet(db.Model):
             'state' : self.state,
             'status' : self.status,
             'sender_id' : self.sender_id,
-            'receiver_id' : self.receiver_id
+            'receiver_id' : self.receiver_id,
+            'sender': sender.username,
+            'receiver': receiver.username
         }
