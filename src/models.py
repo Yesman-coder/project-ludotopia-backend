@@ -128,8 +128,11 @@ class Bet(db.Model):
             name.lower(), 
             description.lower(), 
             due_date,
+            "",
             "enviado",
             True,
+            "",
+            "",
             sender_id,
             receiver_id
         )
