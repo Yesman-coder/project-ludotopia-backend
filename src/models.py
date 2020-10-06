@@ -112,7 +112,7 @@ class Bet(db.Model):
             self.ludos = ludos
             self.name = name
             self.description = description
-            self.due_date = datetime.strptime(due_date, '%Y-%m-%d %I:%M%p')
+            self.due_date = datetime.strptime(due_date, '%Y-%m-%dT%H:%M')
             self.create_date = datetime.now(timezone.utc)
             self.state = state
             self.status = status
