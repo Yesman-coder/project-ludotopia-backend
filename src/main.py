@@ -189,6 +189,7 @@ def get_bet(bet_id):
 
 
 @app.route('/bet', methods=['POST'])
+@jwt_required
 def create_bet():
     """
         "POST": crear una apuesta y devolverla
