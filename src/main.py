@@ -176,12 +176,25 @@ def get_bets():
     bets_serialize = list(map(lambda bet: bet.serialize(), bets))
     return jsonify(bets_serialize), 200
 
-@app.route('/bet/<bet_id>', methods=['GET'])
+@app.route('/bet/<bet_id>', methods=['GET', 'PATCH'])
 def get_bet(bet_id):
     """ buscar y regresar un apuesta en especifico  """
     bet = Bet.query.get(bet_id)
     if isinstance(bet, Bet):
-        return jsonify(bet.serialize()), 200
+        if request.method == "GET":
+            return jsonify(bet.serialize()), 200
+        else:
+            dictionary = request.json
+            bet.update_bet(dictionary)
+            try: 
+                db.session.commit()
+                return jsonify(bet.serialize()), 200
+            except Exception as error:
+                db.session.rollback()
+                print(f"{error.args} {type(error)}")
+                return jsonify({
+                    "result": f"{error.args}"
+                }), 500
     else:
         return jsonify({
             "result": "bet not found"

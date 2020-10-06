@@ -103,11 +103,13 @@ class Bet(db.Model):
     create_date = db.Column(db.DateTime(timezone=True), nullable=False)
     winner = db.Column(db.String(20))
     state = db.Column(db.String(11), nullable=False)
-    status = db.Column(db.Boolean)
+    status = db.Column(db.Boolean, nullable=False)
+    winner_sender = db.Column(db.String(20))
+    winner_receiver = db.Column(db.String(20))
     sender_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     receiver_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
-    def __init__(self, ludos, name, description, due_date, winner, state, status, sender_id, receiver_id):
+    def __init__(self, ludos, name, description, due_date, winner, state, status, winner_sender, winner_receiver, sender_id, receiver_id):
             self.ludos = ludos
             self.name = name
             self.description = description
@@ -116,6 +118,8 @@ class Bet(db.Model):
             self.winner = winner
             self.state = state
             self.status = status
+            self.winner_sender = winner_sender
+            self.winner_receiver = winner_receiver
             self.sender_id = sender_id
             self.receiver_id = receiver_id
         
@@ -134,6 +138,12 @@ class Bet(db.Model):
         )
         return new_bet
 
+    def update_bet(self, dictionary):
+        for (key, value) in dictionary.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+        return True
+
     def serialize(self):
         sender = User.query.get(self.sender_id)
         receiver = User.query.get(self.receiver_id)
@@ -147,6 +157,8 @@ class Bet(db.Model):
             'winner' : self.winner,
             'state' : self.state,
             'status' : self.status,
+            'winner_sender': self.winner_sender,
+            'winner_receiver': self.winner_receiver,
             'sender_id' : self.sender_id,
             'receiver_id' : self.receiver_id,
             'sender': sender.username,
