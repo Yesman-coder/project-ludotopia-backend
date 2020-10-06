@@ -101,7 +101,6 @@ class Bet(db.Model):
     description = db.Column(db.String(120), nullable=False)
     due_date = db.Column(db.DateTime(timezone=True), nullable=False)
     create_date = db.Column(db.DateTime(timezone=True), nullable=False)
-    winner = db.Column(db.String(20))
     state = db.Column(db.String(11), nullable=False)
     status = db.Column(db.Boolean, nullable=False)
     winner_sender = db.Column(db.String(20))
@@ -115,7 +114,6 @@ class Bet(db.Model):
             self.description = description
             self.due_date = datetime.strptime(due_date, '%Y-%m-%d %I:%M%p')
             self.create_date = datetime.now(timezone.utc)
-            self.winner = winner
             self.state = state
             self.status = status
             self.winner_sender = winner_sender
@@ -130,7 +128,6 @@ class Bet(db.Model):
             name.lower(), 
             description.lower(), 
             due_date,
-            "",
             "enviado",
             True,
             sender_id,
@@ -154,7 +151,6 @@ class Bet(db.Model):
             'description' : self.description,
             'due_date' : self.due_date,
             'create_date' : self.create_date,
-            'winner' : self.winner,
             'state' : self.state,
             'status' : self.status,
             'winner_sender': self.winner_sender,
