@@ -180,11 +180,35 @@ def get_bets():
 def get_bet(bet_id):
     """ buscar y regresar un apuesta en especifico  """
     bet = Bet.query.get(bet_id)
+    sender = User.query.get(bet.sender_id)
+    receiver = User.query.get(bet.receiver_id)
     if isinstance(bet, Bet):
         if request.method == "GET":
             return jsonify(bet.serialize()), 200
         else:
             dictionary = request.json
+            print(sender.ludos)
+            print(bet.ludos)
+            if(dictionary["state"] == "aceptado"):
+                receiver.ludos -= bet.ludos
+            if(dictionary["state"] == "ganador"):
+                winner = User.query.filter_by(username=dictionary["winner_receiver"]).first()
+                pote = bet.ludos*2
+                winner.ludos += pote
+            if(dictionary["state"] == "rechazado"):
+                sender.ludos += bet.ludos
+            if(dictionary["state"] == "empate"):
+                sender.ludos += bet.ludos
+                receiver.ludos += bet.ludos
+            
+            # if(
+            #     dictionary["state"] == "enviado" or
+            #     dictionary["state"] == "aceptado" or
+            #     dictionary["state"] == "rechazado" or
+            #     dictionary["state"] == "ganador" or
+            #     dictionary["state"] == "empate" or
+            #     dictionary["state"] == "desacuerdo"
+            # ):
             bet.update_bet(dictionary)
             try: 
                 db.session.commit()
@@ -195,6 +219,15 @@ def get_bet(bet_id):
                 return jsonify({
                     "result": f"{error.args}"
                 }), 500
+
+            
+            # if(bet.state == "ganador"):
+            #     winner = User.query.filter_by(username=bet.).first()
+            #     -= bet.ludos
+            
+            
+
+            
     else:
         return jsonify({
             "result": "bet not found"
