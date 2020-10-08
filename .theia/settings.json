@@ -1,7 +1,4 @@
 {
-<<<<<<< HEAD
-    "python.pythonPath": ".venv/bin/python3.8"
-=======
    "python.pythonPath": ".venv/bin/python3.8"
->>>>>>> f01777d49426b24ec0f49b6b348268ca007ab917
+
 }
