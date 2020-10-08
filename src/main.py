@@ -166,7 +166,7 @@ def get_user():
 def get_users():
     """ buscar y regresar todos los usuarios """
     users = User.query.all()
-    users_serialize = list(map(lambda user: user.serialize(), users))
+    users_serialize = list(map(lambda user: user.serializeUsers(), users))
     return jsonify(users_serialize), 200
 
 @app.route('/bets', methods=['GET'])
@@ -175,6 +175,17 @@ def get_bets():
     bets = Bet.query.all()
     bets_serialize = list(map(lambda bet: bet.serialize(), bets))
     return jsonify(bets_serialize), 200
+
+@app.route('/user/<user_id>', methods=['GET'])
+def get_user_id(user_id):
+    """ buscar y regresar un usuario en especifico """
+    user = User.query.get(user_id)
+    if isinstance(user, User):
+        return jsonify(user.serialize()), 200
+    else:
+        return jsonify({
+            "result": "user not found"
+        }), 404
 
 @app.route('/bet/<bet_id>', methods=['GET', 'PATCH'])
 def get_bet(bet_id):
