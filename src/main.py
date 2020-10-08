@@ -202,15 +202,10 @@ def get_bet(bet_id):
             print(bet.ludos)
             if(dictionary["state"] == "aceptado"):
                 receiver.ludos -= bet.ludos
-            if(dictionary["state"] == "ganador"):
-                winner = User.query.filter_by(username=dictionary["winner_receiver"]).first()
-                pote = bet.ludos*2
-                winner.ludos += pote
+            
             if(dictionary["state"] == "rechazado"):
                 sender.ludos += bet.ludos
-            if(dictionary["state"] == "empate"):
-                sender.ludos += bet.ludos
-                receiver.ludos += bet.ludos
+            
             
             # if(
             #     dictionary["state"] == "enviado" or
@@ -221,6 +216,23 @@ def get_bet(bet_id):
             #     dictionary["state"] == "desacuerdo"
             # ):
             bet.update_bet(dictionary)
+
+            if(bet.winner_sender == bet.winner_receiver and bet.winner_sender != "" and bet.winner_sender != "empate"):
+                bet.state = "ganador"
+                bet.winner = bet.winner_sender
+                winner = User.query.filter_by(username = bet.winner).first()
+                winner.ludos += bet.ludos*2
+            elif(bet.winner_sender == bet.winner_receiver and bet.winner_sender == "empate"):
+                bet.state = "empate"
+                bet.winner = "empate"
+                sender.ludos += bet.ludos
+                receiver.ludos += bet.ludos
+            elif(bet.winner_sender != bet.winner_receiver and bet.winner_sender != "" and bet.winner_receiver != ""):
+                bet.state = "desacuerdo"
+                bet.winner = "desacuerdo"
+                sender.ludos += bet.ludos
+                receiver.ludos += bet.ludos
+            
             try: 
                 db.session.commit()
                 return jsonify(bet.serialize()), 200
