@@ -1,9 +1,6 @@
 {
-<<<<<<< HEAD
-   "python.pythonPath": ".venv/bin/python3.8"
-=======
 
-    "python.pythonPath": ".venv/bin/python3.8"
->>>>>>> omar
+   "python.pythonPath": ".venv/bin/python3.8"
+
 
 }
