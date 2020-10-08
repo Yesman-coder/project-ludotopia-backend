@@ -173,7 +173,7 @@ def get_users():
 def get_bets():
     """ buscar y regresar todos las apuestas """
     bets = Bet.query.all()
-    bets_serialize = list(map(lambda bet: bet.serialize(), bets))
+    bets_serialize = list(map(lambda bet: bet.serializeBets(), bets))
     return jsonify(bets_serialize), 200
 
 @app.route('/user/<user_id>', methods=['GET'])

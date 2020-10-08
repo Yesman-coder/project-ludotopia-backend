@@ -149,6 +149,14 @@ class Bet(db.Model):
             if hasattr(self, key):
                 setattr(self, key, value)
         return True
+        
+    def serializeBets(self):
+        return{
+            "id": self.id,
+            "name": self.name,
+            "state": self.state,
+            "status": self.status
+        }
 
     def serialize(self):
         sender = User.query.get(self.sender_id)
