@@ -1,7 +1,7 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
-import os
+import os, threading
 from flask import Flask, request, jsonify, url_for
 from flask_jwt_simple import (
     JWTManager, jwt_required, create_jwt, get_jwt_identity
@@ -30,6 +30,14 @@ setup_admin(app)
 
 jwt = JWTManager(app)
 
+
+# def periodic_check():
+#     active_bets = Bet.query.filter_by(state = "enviado").all()
+#     for bet in active_bets:
+#         bet.check_date()
+#     threading.Timer(1, periodic_check).start()
+
+# periodic_check()
 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
@@ -330,8 +338,21 @@ def create_bet():
             "response": "user not found"
         }), 404
 
+@app.route("/check", methods=["GET"])
+def check_bets():
+    active_bets = Bet.query.filter_by(state = "enviado").all()
+    for bet in active_bets:
+        bet.check_date()
+
+    return jsonify({"response":"bets checked"}), 200
+    
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=False)
+
+
+
+

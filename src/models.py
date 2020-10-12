@@ -149,7 +149,13 @@ class Bet(db.Model):
             if hasattr(self, key):
                 setattr(self, key, value)
         return True
-        
+
+    def check_date(self):
+        if (datetime.now() > self.due_date):
+            self.state = "expirado"
+            sender = User.query.get(self.sender_id)
+            sender.ludos += self.ludos
+
     def serializeBets(self):
         return{
             "id": self.id,
