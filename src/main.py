@@ -31,13 +31,14 @@ setup_admin(app)
 jwt = JWTManager(app)
 
 
-# def periodic_check():
-#     active_bets = Bet.query.filter_by(state = "enviado").all()
-#     for bet in active_bets:
-#         bet.check_date()
-#     threading.Timer(1, periodic_check).start()
+#def periodic_check():
+#    active_bets = Bet.query.filter_by(state = "enviado").all()
+#    print("check")
+#    for bet in active_bets:
+#        bet.check_date()
+#    threading.Timer(1, periodic_check).start()
 
-# periodic_check()
+#periodic_check()
 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)

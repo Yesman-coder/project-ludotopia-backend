@@ -151,10 +151,16 @@ class Bet(db.Model):
         return True
 
     def check_date(self):
+        print(f"checking bet n {self.id}")
         if (datetime.now() > self.due_date):
+            print(f"bet {self.id} is expired")
             self.state = "expirado"
             sender = User.query.get(self.sender_id)
             sender.ludos += self.ludos
+            try: 
+                db.session.commit()
+            except Exception as error:
+                db.session.rollback()
 
     def serializeBets(self):
         return{
